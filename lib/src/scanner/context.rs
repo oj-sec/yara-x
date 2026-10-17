@@ -2,7 +2,7 @@ use std::cell::RefCell;
 use std::collections::VecDeque;
 #[cfg(feature = "rules-profiling")]
 use std::iter;
-use std::mem::{MaybeUninit, transmute};
+use std::mem::transmute;
 #[cfg(feature = "rules-profiling")]
 use std::ops::AddAssign;
 use std::ops::ControlFlow;
@@ -101,7 +101,7 @@ pub(crate) struct MatchTracker<'r> {
 /// Structure that holds information about WASM memories and variables used
 /// during the scan.
 pub(crate) struct WasmState {
-    pub module: MaybeUninit<Instance>,
+    pub module: Option<Instance>,
     pub main_func: Option<TypedFunc<(), i32>>,
     pub main_memory: Option<wasm::runtime::Memory>,
     pub filesize: Option<Global>,
@@ -2171,7 +2171,7 @@ pub fn create_wasm_store_and_ctx<'r>(
         num_matching_private_rules: 0,
         num_non_matching_private_rules: 0,
         wasm: WasmState {
-            module: MaybeUninit::uninit(),
+            module: None,
             main_memory: None,
             main_func: None,
             filesize: None,
@@ -2310,7 +2310,7 @@ pub fn create_wasm_store_and_ctx<'r>(
 
     let ctx = wasm_store.data_mut();
 
-    ctx.wasm.module = MaybeUninit::new(wasm_instance);
+    ctx.wasm.module = Some(wasm_instance);
     ctx.wasm.main_memory = Some(main_memory);
     ctx.wasm.main_func = Some(main_fn);
     ctx.wasm.filesize = Some(filesize);
